@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  gqbooks:
+    image: ektowett/gqbooks:latest
+    ports:
+      - 7080:7080
+    environment:
+      - PORT=7080
+      - ENV=local
+    volumes:
+      - ~/tmp/goair/gqbooks/pkg:/go/pkg
+    networks:
+      - gqbooks_net
+
+networks:
+  gqbooks_net:

@@ -1,0 +1,24 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Book {
+  title: String!
+  author: String!
+  pages: [Page!]!
+}
+
+type Page {
+  pageIndex: Int!
+  content: String!
+  tokens: [Token!]!
+}
+
+type Token {
+  position: [Int!]!
+  value: String!
+}
+
+type Query {
+  books: [Book!]!
+}
