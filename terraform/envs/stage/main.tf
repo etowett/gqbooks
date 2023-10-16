@@ -42,25 +42,46 @@ module "vpc" {
   database_subnets = []
 }
 
-module "eks" {
-  source = "../..//modules/eks"
+# module "eks" {
+#   source = "../..//modules/eks"
+
+#   env             = local.env
+#   name            = "${local.env}-${local.project}-cluster"
+#   cluster_version = "1.28"
+#   vpc_name        = "${local.env}-${local.project}-net"
+
+#   azs = ["${local.region}a", "${local.region}b"]
+
+#   tags = {
+#     "Name"      = "${local.env}-cluster"
+#     "Env"       = local.env
+#     "ManagedBy" = "terraform"
+#   }
+
+#   depends_on = [module.vpc]
+# }
+
+module "eks-ec2" {
+  source = "../..//modules/eks-ec2"
 
   env             = local.env
-  name            = "${local.env}-${local.project}-cluster"
+  name            = "${local.env}-ec2-cluster"
   cluster_version = "1.28"
   vpc_name        = "${local.env}-${local.project}-net"
-  # ssh_key_name    = "id_spay_main"
 
-  # instance_types = ["t3.small", "t3a.small"]
-  azs = ["${local.region}a", "${local.region}b"]
+  ssh_key_name         = "id_ello"
 
-  # desired_size = 1
-  # min_size     = 1
-  # max_size     = 3
+  instance_types = ["t3.small", "t3a.small"]
+
+  desired_size = 2
+  min_size = 2
+  max_size = 4
 
   tags = {
-    "Name"      = "${local.env}-cluster"
-    "Env"       = local.env
-    "ManagedBy" = "terraform"
+    "name"      = "${local.env}-ec2-cluster"
+    "env"       = local.env
+    "managed_by" = "terraform"
   }
+
+  depends_on = [module.vpc]
 }

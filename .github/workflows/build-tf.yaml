@@ -1,0 +1,95 @@
+name: GQBooks terraform stage action
+
+on:
+  push:
+    branches:
+    - main
+  #   paths:
+  #   - terraform/**
+  # pull_request:
+  #   branches:
+  #   - main
+  #   paths:
+  #   - terraform/**
+
+jobs:
+  terraform:
+    defaults:
+      run:
+        working-directory: terraform/envs/stage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.6.1
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt -check
+      continue-on-error: true
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    # - name: Terraform Validate
+    #   id: validate
+    #   run: terraform validate -no-color
+
+    # - name: Terraform Plan
+    #   id: plan
+    #   run: terraform plan -no-color
+    #   continue-on-error: true
+
+    - name: Plan output
+      id: output
+      uses: actions/github-script@v3
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          ### Workspace
+
+          \`${process.env.TF_WORKSPACE}\`
+
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          <details><summary>Show Plan</summary>
+
+          \`\`\`hcl
+          ${process.env.PLAN}
+          \`\`\`
+
+          </details>
+
+          **Pusher**: @${{ github.actor }}
+          **Action**: ${{ github.event_name }}
+          `;
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    # - name: Terraform Apply
+    #   id: apply
+    #   run: terraform apply -no-color --auto-approve
+
+    - name: Terraform Destroy
+      id: destroy
+      run: |
+        terraform destroy -auto-approve

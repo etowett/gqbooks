@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  repository: ektowett/gqbooks
+  pullPolicy: IfNotPresent
+  tag: latest
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  port: 7080
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod-issuer
+  hosts:
+    - host: api.gqbooks.citizix.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+   - secretName: api-gqbooks-tls
+     hosts:
+       - api-gqbooks.citizix.com
+
+resources:
+  limits:
+    cpu: 400m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+env:
+  ENV: dev
+  PORT: "7080"

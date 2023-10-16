@@ -10,7 +10,7 @@ Create a file `~/.aws/credentials` in home directory and add the credentials
 
 ```config
 [ello]
-aws_access_key_id = AKIAZOFV7BWKNW3YKQX5
+aws_access_key_id = xxx
 aws_secret_access_key = xxxx
 aws_region = eu-central-1
 aws_default_region = eu-central-1
@@ -31,7 +31,7 @@ aws eks list-clusters --region=eu-central-1
 Then update kubeconfig
 
 ```sh
-aws eks update-kubeconfig --region eu-central-1 --name main
+aws eks update-kubeconfig --region eu-central-1 --name stage-ec2-cluster
 ```
 
 Confirm connectivity
@@ -56,4 +56,10 @@ $ kubectl version
 Client Version: v1.28.2
 Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
 Server Version: v1.28.2-eks-f8587cb
+```
+
+## Helm
+
+```sh
+helm create app
 ```

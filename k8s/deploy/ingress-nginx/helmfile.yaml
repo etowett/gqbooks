@@ -1,0 +1,14 @@
+helmDefaults:
+  createNamespace: true
+  timeout: 300
+  wait: false
+
+repositories:
+- name: ingress-nginx
+  url: https://kubernetes.github.io/ingress-nginx
+
+releases:
+- name: ingress-nginx
+  namespace: ingress-nginx
+  chart: ingress-nginx/ingress-nginx
+  version: v4.8.2
