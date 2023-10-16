@@ -21,6 +21,7 @@ locals {
   env     = "stage"
   project = "ello"
   region  = "eu-central-1"
+  azs     = ["${local.region}a", "${local.region}b"]
 }
 
 module "vpc" {
@@ -34,13 +35,32 @@ module "vpc" {
   enable_vpn_gateway = false
   enable_dns_support = true
 
-  azs             = ["${local.region}a", "${local.region}b", ]
+  azs             = local.azs
   private_subnets = ["10.10.1.0/24", "10.10.2.0/24"]
   public_subnets  = ["10.10.3.0/24", "10.10.4.0/24"]
 
   database_subnets = []
 }
 
-resource "aws_ecr_repository" "app_ecr_repo" {
-  name = "ellorepo"
+module "eks" {
+  source = "../..//modules/eks"
+
+  env             = local.env
+  name            = "${local.env}-${local.project}-cluster"
+  cluster_version = "1.28"
+  vpc_name        = "${local.env}-${local.project}-net"
+  # ssh_key_name    = "id_spay_main"
+
+  # instance_types = ["t3.small", "t3a.small"]
+  azs = ["${local.region}a", "${local.region}b"]
+
+  # desired_size = 1
+  # min_size     = 1
+  # max_size     = 3
+
+  tags = {
+    "Name"      = "${local.env}-cluster"
+    "Env"       = local.env
+    "ManagedBy" = "terraform"
+  }
 }

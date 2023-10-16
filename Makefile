@@ -5,6 +5,9 @@ help: ## Display available commands.
 compile: ## Compile the app into ./gqbooks
 	go build -o ./gqbooks .
 
+run_local: compile ## Run the app locally
+	./gqbooks
+
 docker-ui: ## Docker build the ui into ektowett/gqbooks-ui:latest
 	@cd ui && docker build -t ektowett/gqbooks-ui:latest . && cd ..
 	## @cd ui && docker build --build-arg API_URL=https://stage-gqbooks-api.citizix.com -t ektowett/gqbooks-ui:latest . && cd ..
