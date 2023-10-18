@@ -29,7 +29,8 @@ variable "instance_types" {
 }
 
 variable "ssh_key_name" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "desired_size" {

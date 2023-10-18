@@ -4,6 +4,8 @@ You need to be granted access to AWS with the right permissions.
 
 You need kubectl installed before proceeding. Install kubectl [here](https://kubernetes.io/docs/tasks/tools/).
 
+Install [aws cli here](https://aws.amazon.com/cli/).
+
 Generate Credentials
 
 Create a file `~/.aws/credentials` in home directory and add the credentials
@@ -20,6 +22,39 @@ Then in the terminal, to use the credentials, export
 
 ```sh
 export AWS_PROFILE=ello
+```
+
+Confirm
+
+```sh
+aws sts get-caller-identity
+```
+
+Create s3 terraform state bucket
+
+```sh
+aws s3api create-bucket \
+    --bucket citizix-infra-bkt \
+    --region eu-central-1 \
+    --create-bucket-configuration LocationConstraint=eu-central-1
+
+aws s3api put-bucket-encryption \
+    --bucket citizix-infra-bkt \
+    --server-side-encryption-configuration "{\"Rules\": [{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\": \"AES256\"}}]}"
+
+aws s3api put-bucket-versioning \
+    --bucket citizix-infra-bkt \
+    --versioning-configuration Status=Enabled
+```
+
+in the staging directory, run terraform commands:
+
+```sh
+cd terraform/envs/stage
+
+terraform init
+
+terraform plan
 ```
 
 List eks clusters

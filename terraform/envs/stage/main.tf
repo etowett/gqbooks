@@ -1,16 +1,16 @@
 terraform {
   backend "s3" {
-    bucket = "spay-infra-store"
+    bucket = "citizix-infra-bkt"
     key    = "terraform/ello"
-    region = "eu-west-1"
+    region = "eu-central-1"
   }
 
-  #   required_providers {
-  #     aws = {
-  #       source  = "hashicorp/aws"
-  #       version = "5.17.0"
-  #     }
-  #   }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
 }
 
 provider "aws" {
@@ -42,8 +42,8 @@ module "vpc" {
   database_subnets = []
 }
 
-# module "eks" {
-#   source = "../..//modules/eks"
+# module "eks-fargate" {
+#   source = "../..//modules/eks-fargate"
 
 #   env             = local.env
 #   name            = "${local.env}-${local.project}-cluster"
@@ -69,19 +69,15 @@ module "eks-ec2" {
   cluster_version = "1.28"
   vpc_name        = "${local.env}-${local.project}-net"
 
-  ssh_key_name         = "id_ello"
-
   instance_types = ["t3.small", "t3a.small"]
 
   desired_size = 2
-  min_size = 2
-  max_size = 4
+  min_size     = 2
+  max_size     = 4
 
   tags = {
-    "name"      = "${local.env}-ec2-cluster"
-    "env"       = local.env
+    "name"       = "${local.env}-ec2-cluster"
+    "env"        = local.env
     "managed_by" = "terraform"
   }
-
-  depends_on = [module.vpc]
 }
