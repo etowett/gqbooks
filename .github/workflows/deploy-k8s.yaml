@@ -1,0 +1,69 @@
+name: Deploy on My k8s Server
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Declare docker tag variable
+      id: vars
+      shell: bash
+      run: |
+        GIT_HASH=$(git rev-parse --short "${GITHUB_SHA}")
+        echo "##[set-output name=docker_tag;]$(echo ${GITHUB_REF##*/}-${GIT_HASH})"
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        build-args: |
+          TAGS=citizix
+          BUILD_ID=${{ github.run_id }}
+          BUILD_TAG=${{ steps.vars.outputs.docker_tag }}
+        tags: ektowett/gqbooks:${{ steps.vars.outputs.docker_tag }}
+
+    - name: Set up helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.13.1
+
+    - name: Add helm repo and deploy
+      run: |-
+        echo -e "${{secrets.MY_KUBECONFIG}}" > kubeconfig
+        export KUBECONFIG=./kubeconfig
+        kubectl config set-context --current --namespace=stage
+        helm upgrade --install --debug gqbooks k8s/helm-charts/app \
+          --version 0.1.2 \
+          --namespace=stage \
+          --create-namespace \
+          --wait \
+          --timeout 420s \
+          --set image.tag=${{ steps.vars.outputs.docker_tag }} \
+          -f deploy/stage-backend.yaml
+        kubectl rollout status -n stage deployment.apps/gqbooks-app

@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "citizix-infra-bkt"
-    key    = "terraform/ello"
-    region = "eu-central-1"
+    bucket = "spinmobile-terraform-state"
+    key    = "fiddle/tfello.json"
+    region = "eu-west-1"
   }
 
   required_providers {
@@ -31,7 +31,7 @@ module "vpc" {
   cidr = "10.10.0.0/16"
   env  = local.env
 
-  enable_nat_gateway = false
+  enable_nat_gateway = true
   enable_vpn_gateway = false
   enable_dns_support = true
 
@@ -65,15 +65,16 @@ module "eks-ec2" {
   source = "../..//modules/eks-ec2"
 
   env             = local.env
-  name            = "${local.env}-ec2-cluster"
-  cluster_version = "1.28"
+  name            = "${local.env}-${local.project}-clstr"
+  cluster_version = "1.27"
   vpc_name        = "${local.env}-${local.project}-net"
 
   instance_types = ["t3.small", "t3a.small"]
+  ssh_key_name   = "id_spinmobile_main"
 
-  desired_size = 2
-  min_size     = 2
-  max_size     = 4
+  desired_size = 1
+  min_size     = 1
+  max_size     = 3
 
   tags = {
     "name"       = "${local.env}-ec2-cluster"

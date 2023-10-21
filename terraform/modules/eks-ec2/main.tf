@@ -52,8 +52,8 @@ module "eks" {
 
   create_cni_ipv6_iam_policy = true
 
-  cluster_endpoint_private_access = var.cluster_endpoint_private_access
-  cluster_endpoint_public_access  = var.cluster_endpoint_public_access
+  # cluster_endpoint_private_access = var.cluster_endpoint_private_access
+  cluster_endpoint_public_access = var.cluster_endpoint_public_access
 
   cluster_addons = {
     coredns = {
@@ -65,27 +65,12 @@ module "eks" {
     vpc-cni = {
       resolve_conflicts = "OVERWRITE"
     }
-    # vpc-cni = {
-    #   most_recent              = true
-    #   before_compute           = true
-    #   service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
-    #   configuration_values = jsonencode({
-    #     env = {
-    #       # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
-    #       ENABLE_PREFIX_DELEGATION = "true"
-    #       WARM_PREFIX_TARGET       = "1"
-    #     }
-    #   })
-    # }
+
   }
 
-  # cluster_encryption_config = [{
-  #   provider_key_arn = aws_kms_key.eks.arn
-  #   resources        = ["secrets"]
-  # }]
-
-  vpc_id     = data.aws_vpc.vpc.id
-  subnet_ids = data.aws_subnets.private_subnet.ids
+  vpc_id                   = data.aws_vpc.vpc.id
+  subnet_ids               = data.aws_subnets.private_subnet.ids
+  control_plane_subnet_ids = data.aws_subnets.public_subnet.ids
 
   manage_aws_auth_configmap = true
 
@@ -93,11 +78,7 @@ module "eks" {
     ami_type                   = "AL2_x86_64"
     instance_types             = var.instance_types
     iam_role_attach_cni_policy = true
-    disk_size                  = 50
-    # remote_access = {
-    #   ec2_ssh_key               = var.ssh_key_name
-    #   source_security_group_ids = [aws_security_group.remote_access.id]
-    # }
+    disk_size                  = 30
   }
 
   eks_managed_node_groups = {
@@ -118,9 +99,9 @@ module "eks" {
       launch_template_name   = ""
 
       instance_types = var.instance_types
-      capacity_type  = "ON_DEMAND"
+      capacity_type  = "SPOT"
 
-      disk_size = 50
+      disk_size = 30
 
       create_launch_template = false
       launch_template_name   = ""
@@ -130,10 +111,10 @@ module "eks" {
       }
 
       # Remote access cannot be specified with a launch template
-      # remote_access = {
-      #   ec2_ssh_key               = var.ssh_key_name
-      #   source_security_group_ids = [aws_security_group.remote_access.id]
-      # }
+      remote_access = {
+        ec2_ssh_key               = var.ssh_key_name
+        source_security_group_ids = [aws_security_group.remote_access.id]
+      }
 
       iam_role_use_name_prefix = false
     }

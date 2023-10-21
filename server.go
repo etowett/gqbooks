@@ -20,7 +20,7 @@ func main() {
 	}
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"%"},
+		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 	})
 

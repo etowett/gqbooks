@@ -1,5 +1,4 @@
-FROM golang:1.21.3-alpine AS builder
-# RUN apk add  --no-cache --update git curl bash
+FROM golang:1.21-alpine AS builder
 WORKDIR /app
 ADD go.mod go.sum ./
 RUN go mod download

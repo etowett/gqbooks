@@ -1,6 +1,7 @@
-name: GQBooks terraform stage action
+name: Build GQBooks terraform stage
 
 on:
+  workflow_dispatch:
   push:
     branches:
     - main
@@ -85,11 +86,11 @@ jobs:
             body: output
           })
 
-    # - name: Terraform Apply
-    #   id: apply
-    #   run: terraform apply -no-color --auto-approve
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -no-color --auto-approve
 
-    - name: Terraform Destroy
-      id: destroy
-      run: |
-        terraform destroy -auto-approve
+    # - name: Terraform Destroy
+    #   id: destroy
+    #   run: |
+    #     terraform destroy -auto-approve
