@@ -22,6 +22,11 @@ locals {
   project = "ello"
   region  = "eu-central-1"
   azs     = ["${local.region}a", "${local.region}b"]
+
+  apps = {
+    "gqbooks"   = { "port" : 7080 }
+    "gqbooksui" = { "port" : 80 }
+  }
 }
 
 module "vpc" {
@@ -81,4 +86,9 @@ module "eks-ec2" {
     "env"        = local.env
     "managed_by" = "terraform"
   }
+}
+
+resource "aws_ecr_repository" "app_ecr_repo" {
+  for_each = local.apps
+  name     = each.key
 }

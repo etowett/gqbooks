@@ -1,10 +1,10 @@
-name: Deploy UI on My k8s Server
+name: Deploy UI on Bare k8s Server
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
+  # push:
+  #   branches:
+  #   - main
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
@@ -58,7 +58,7 @@ jobs:
         export KUBECONFIG=./kubeconfig
         kubectl config set-context --current --namespace=stage
         helm upgrade --install --debug gqbooksui k8s/helm-charts/app \
-          --version 0.1.2 \
+          --version 0.1.0 \
           --namespace=stage \
           --create-namespace \
           --wait \

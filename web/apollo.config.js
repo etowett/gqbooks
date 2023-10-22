@@ -3,7 +3,7 @@ module.exports = {
     service: {
       name: 'gqbooks',
       // URL to the GraphQL API
-      url: 'http://localhost:7080/',
+      uri: import.meta.env.VITE_API_URL,
     },
     // Files processed by the extension
     includes: [

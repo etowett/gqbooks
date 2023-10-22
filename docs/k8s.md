@@ -63,10 +63,20 @@ List eks clusters
 aws eks list-clusters --region=eu-central-1
 ```
 
+The output will be json with list of clusters in the specified region, like this
+
+```json
+{
+    "clusters": [
+        "stage-ello-clstr"
+    ]
+}
+```
+
 Then update kubeconfig
 
 ```sh
-aws eks update-kubeconfig --region eu-central-1 --name stage-ec2-cluster
+aws eks update-kubeconfig --region eu-central-1 --name stage-ello-clstr
 ```
 
 Confirm connectivity
@@ -94,6 +104,8 @@ Server Version: v1.28.2-eks-f8587cb
 ```
 
 ## Helm
+
+Create the helm chart in `./k8s/helm-charts`
 
 ```sh
 helm create app

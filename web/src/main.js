@@ -7,7 +7,7 @@ import { DefaultApolloClient } from '@vue/apollo-composable'
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: 'http://localhost:7080/query',
+  uri: `${import.meta.env.VITE_API_URL}/query`
 })
 
 // Cache implementation
