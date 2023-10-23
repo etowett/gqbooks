@@ -66,29 +66,29 @@ module "vpc" {
 #   depends_on = [module.vpc]
 # }
 
-module "eks-ec2" {
-  source = "../..//modules/eks-ec2"
+# # module "eks-ec2" {
+# #   source = "../..//modules/eks-ec2"
 
-  env             = local.env
-  name            = "${local.env}-${local.project}-clstr"
-  cluster_version = "1.27"
-  vpc_name        = "${local.env}-${local.project}-net"
+# #   env             = local.env
+# #   name            = "${local.env}-${local.project}-clstr"
+# #   cluster_version = "1.27"
+# #   vpc_name        = "${local.env}-${local.project}-net"
 
-  instance_types = ["t3.small", "t3a.small"]
-  ssh_key_name   = "id_spinmobile_main"
+# #   instance_types = ["t3.small", "t3a.small"]
+# #   ssh_key_name   = "id_spinmobile_main"
 
-  desired_size = 1
-  min_size     = 1
-  max_size     = 3
+# #   desired_size = 1
+# #   min_size     = 1
+# #   max_size     = 3
 
-  tags = {
-    "name"       = "${local.env}-ec2-cluster"
-    "env"        = local.env
-    "managed_by" = "terraform"
-  }
-}
+# #   tags = {
+# #     "name"       = "${local.env}-ec2-cluster"
+# #     "env"        = local.env
+# #     "managed_by" = "terraform"
+# #   }
+# # }
 
-resource "aws_ecr_repository" "app_ecr_repo" {
-  for_each = local.apps
-  name     = each.key
-}
+# resource "aws_ecr_repository" "app_ecr_repo" {
+#   for_each = local.apps
+#   name     = each.key
+# }

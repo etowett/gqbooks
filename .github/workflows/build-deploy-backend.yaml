@@ -2,12 +2,12 @@ name: GQBooks Backend app deploy to EKS
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+  # push:
+  #   branches:
+  #   - main
+  # pull_request:
+  #   branches:
+  #   - main
 
 jobs:
   deploy:
