@@ -8,10 +8,18 @@ type Book struct {
 	Pages  []*Page `json:"pages"`
 }
 
+type Combined struct {
+	Index      *int    `json:"index,omitempty"`
+	Token      *string `json:"token,omitempty"`
+	Content    string  `json:"content"`
+	IsTappable bool    `json:"isTappable"`
+}
+
 type Page struct {
-	PageIndex int      `json:"pageIndex"`
-	Content   string   `json:"content"`
-	Tokens    []*Token `json:"tokens"`
+	PageIndex     int         `json:"pageIndex"`
+	Content       string      `json:"content"`
+	RefinedTokens []*Combined `json:"refined_tokens"`
+	Tokens        []*Token    `json:"tokens"`
 }
 
 type Token struct {

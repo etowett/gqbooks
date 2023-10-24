@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "spinmobile-terraform-state"
-    key    = "fiddle/tfello.json"
-    region = "eu-west-1"
+    bucket = "ello-terraform-state"
+    key    = "stage/statefile.json"
+    region = "eu-central-1"
   }
 
   required_providers {
@@ -75,7 +75,7 @@ module "vpc" {
 # #   vpc_name        = "${local.env}-${local.project}-net"
 
 # #   instance_types = ["t3.small", "t3a.small"]
-# #   ssh_key_name   = "id_spinmobile_main"
+# #   ssh_key_name   = "id_ello_main"
 
 # #   desired_size = 1
 # #   min_size     = 1

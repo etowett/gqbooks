@@ -39,6 +39,53 @@ func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
 		if err := json.Unmarshal(body, &book); err != nil {
 			return books, fmt.Errorf("could not unmarshal: %v", err)
 		}
+
+		for _, page := range book.Pages {
+			var allCombined []*model.Combined
+			for i, token := range page.Tokens {
+				allCombined = append(allCombined, &model.Combined{
+					Index:      &token.Position[0],
+					Token:      &token.Value,
+					Content:    token.Value,
+					IsTappable: true,
+				})
+
+				if len(page.Tokens)-1 > i {
+					for _, val := range page.Content[token.Position[1]:page.Tokens[i+1].Position[0]] {
+						if string(val) == " " {
+							allCombined = append(allCombined, &model.Combined{
+								Content:    " ",
+								IsTappable: false,
+							})
+						} else {
+							allCombined = append(allCombined, &model.Combined{
+								Content:    string(val),
+								IsTappable: false,
+							})
+						}
+					}
+				}
+				if i == len(page.Tokens)-1 {
+					if token.Position[1] != len(page.Content) {
+						for _, val := range page.Content[token.Position[1]:] {
+							if string(val) == " " {
+								allCombined = append(allCombined, &model.Combined{
+									Content:    " ",
+									IsTappable: false,
+								})
+							} else {
+								allCombined = append(allCombined, &model.Combined{
+									Content:    string(val),
+									IsTappable: false,
+								})
+							}
+						}
+					}
+				}
+			}
+			page.RefinedTokens = allCombined
+		}
+
 		books = append(books, book)
 	}
 

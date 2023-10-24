@@ -16,6 +16,12 @@ const booksQuery = gql`
         position
         value
       }
+      refined_tokens {
+        index
+        token
+        content
+        isTappable
+      }
     }
 	}
 }

@@ -11,7 +11,15 @@ type Book {
 type Page {
   pageIndex: Int!
   content: String!
+  refined_tokens: [Combined!]!
   tokens: [Token!]!
+}
+
+type Combined  {
+	index: Int
+	token: String
+	content: String!
+	isTappable: Boolean!
 }
 
 type Token {
