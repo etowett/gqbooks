@@ -13,8 +13,7 @@ import (
 	"path/filepath"
 )
 
-// Books is the resolver for the books field.
-func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
+func getBooksData() ([]*model.Book, error) {
 	var books []*model.Book
 
 	filePaths := []string{
@@ -26,7 +25,6 @@ func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
 	if err != nil {
 		return books, fmt.Errorf("could not get filepath: %v", err)
 	}
-
 	for _, path := range filePaths {
 		var book *model.Book
 		path := filepath.Join(dir, path)
@@ -39,19 +37,45 @@ func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
 		if err := json.Unmarshal(body, &book); err != nil {
 			return books, fmt.Errorf("could not unmarshal: %v", err)
 		}
+		books = append(books, book)
+	}
+	return books, nil
+}
 
-		for _, page := range book.Pages {
-			var allCombined []*model.Combined
-			for i, token := range page.Tokens {
-				allCombined = append(allCombined, &model.Combined{
-					Index:      &token.Position[0],
-					Token:      &token.Value,
-					Content:    token.Value,
-					IsTappable: true,
-				})
+func processBook(book *model.Book) *model.Book {
+	for _, page := range book.Pages {
+		var allCombined []*model.Combined
+		for i, token := range page.Tokens {
+			allCombined = append(allCombined, &model.Combined{
+				Index:      &token.Position[0],
+				Token:      &token.Value,
+				Content:    token.Value,
+				IsTappable: true,
+			})
 
-				if len(page.Tokens)-1 > i {
-					for _, val := range page.Content[token.Position[1]:page.Tokens[i+1].Position[0]] {
+			// if it is not the last item in the list
+			if len(page.Tokens)-1 > i {
+				// loop values in beween
+				for _, val := range page.Content[token.Position[1]:page.Tokens[i+1].Position[0]] {
+					if string(val) == " " {
+						allCombined = append(allCombined, &model.Combined{
+							Content:    " ",
+							IsTappable: false,
+						})
+					} else {
+						allCombined = append(allCombined, &model.Combined{
+							Content:    string(val),
+							IsTappable: false,
+						})
+					}
+				}
+			}
+			// If we are at the end
+			if i == len(page.Tokens)-1 {
+				// If we still have values at the end
+				if token.Position[1] != len(page.Content) {
+					// loop them
+					for _, val := range page.Content[token.Position[1]:] {
 						if string(val) == " " {
 							allCombined = append(allCombined, &model.Combined{
 								Content:    " ",
@@ -65,31 +89,40 @@ func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
 						}
 					}
 				}
-				if i == len(page.Tokens)-1 {
-					if token.Position[1] != len(page.Content) {
-						for _, val := range page.Content[token.Position[1]:] {
-							if string(val) == " " {
-								allCombined = append(allCombined, &model.Combined{
-									Content:    " ",
-									IsTappable: false,
-								})
-							} else {
-								allCombined = append(allCombined, &model.Combined{
-									Content:    string(val),
-									IsTappable: false,
-								})
-							}
-						}
-					}
-				}
 			}
-			page.RefinedTokens = allCombined
 		}
+		page.RefinedTokens = allCombined
+	}
+	return book
+}
 
-		books = append(books, book)
+// Books is the resolver for the books field.
+func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
+	books, err := getBooksData()
+	if err != nil {
+		return books, fmt.Errorf("could not get books data: %v", err)
+	}
+
+	for _, book := range books {
+		books = append(books, processBook(book))
 	}
 
 	return books, nil
+}
+
+// GetBook is the resolver for the getBook field.
+func (r *queryResolver) GetBook(ctx context.Context, title string) (*model.Book, error) {
+	books, err := getBooksData()
+	if err != nil {
+		return &model.Book{}, fmt.Errorf("could not get books data: %v", err)
+	}
+	for _, book := range books {
+		if book.Title == title {
+			return processBook(book), nil
+		}
+		books = append(books, processBook(book))
+	}
+	return &model.Book{}, nil
 }
 
 // Query returns QueryResolver implementation.

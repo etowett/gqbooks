@@ -5,7 +5,7 @@ data "aws_vpc" "vpc" {
   }
 }
 
-data "aws_subnets" "private_subnet" {
+data "aws_subnets" "private_subnets" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.vpc.id]
@@ -17,7 +17,7 @@ data "aws_subnets" "private_subnet" {
   }
 }
 
-data "aws_subnets" "public_subnet" {
+data "aws_subnets" "public_subnets" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.vpc.id]
@@ -69,8 +69,8 @@ module "eks" {
   }
 
   vpc_id                   = data.aws_vpc.vpc.id
-  subnet_ids               = data.aws_subnets.private_subnet.ids
-  control_plane_subnet_ids = data.aws_subnets.public_subnet.ids
+  subnet_ids               = data.aws_subnets.private_subnets.ids
+  control_plane_subnet_ids = data.aws_subnets.public_subnets.ids
 
   manage_aws_auth_configmap = true
 
@@ -91,7 +91,7 @@ module "eks" {
       use_custom_launch_template = false
 
       description = "EKS managed node group for ${var.name}-blue node group"
-      subnet_ids  = data.aws_subnets.private_subnet.ids
+      subnet_ids  = data.aws_subnets.private_subnets.ids
 
       # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
       # so we need to disable it to use the default template provided by the AWS EKS managed node group service

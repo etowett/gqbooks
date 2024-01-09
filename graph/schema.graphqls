@@ -29,4 +29,5 @@ type Token {
 
 type Query {
   books: [Book!]!
+  getBook(title: String!): Book
 }
