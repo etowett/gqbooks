@@ -1,6 +1,9 @@
 # GQBooks
 
-Graphql books library.
+Graphql books library. Done as part of these:
+
+- [Backend](https://github.com/ElloTechnology/backend_takehome)
+- [Full Stack](https://github.com/ElloTechnology/full-stack-test)
 
 This project is composed of a golang graphql backend and vuejs frontend. The UI is hosted in the `web` directory.
 

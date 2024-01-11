@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: 648921681300.dkr.ecr.eu-central-1.amazonaws.com/gqbooksui
+  repository: ektowett/gqbooksui
   pullPolicy: IfNotPresent
   tag: latest
 
@@ -18,17 +18,17 @@ ingress:
   enabled: true
   className: ""
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt-prod-issuer
   hosts:
-    - host: gqbooksui.citizix.com
+    - host: gqbooks.citizix.com
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
-   - secretName: gqbooksui-tls
+   - secretName: gqbooks-tls
      hosts:
-       - gqbooksui.citizix.com
+       - gqbooks.citizix.com
 
 resources:
   limits:

@@ -2,9 +2,9 @@ name: Deploy Backend on Bare k8s Server
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #   - main
+  push:
+    branches:
+    - deploy-my
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
